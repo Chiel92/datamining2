@@ -10,6 +10,7 @@ graph.empty = function(size)
 graph.search = function(observed, graph)
 {
     # Detect the cliques from the graph
+    cliques <- bronkerbosch(graph)
 
     # Use loglin to generate fitted model to the cliques
 
@@ -28,7 +29,7 @@ bronkerbosch = function(graph)
         if (length(exclude) == 0 & length(rest) == 0)
             return(list(include))
 
-        result <- c()
+        result <- list()
         for (v in rest)
         {
             neighbors <- which(graph[v,] == 1)
