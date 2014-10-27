@@ -1,23 +1,22 @@
 # TODO
 # - return trace in gm.search
 
-# Utils
-assert = function(bool) if (!bool) stop('Assertion error')
-
-graph.empty = function(size) matrix(0, size, size)
-
-# graph.search
+# gm.search(observed: table, graph.init: binary square matrix, forward: bool, backward: bool, score: string)
+#   : list(model: list of cliques, score: numeric, call: string)
+# Perform a hill climbing search on graphical models to determine the best fitted model
+# for the observed data, according to the specified score function.
 gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic')
 {
     graph <- graph.init
     modelscore <- graph.assess(observed, graph, score)
     print(paste('Starting with score', modelscore))
 
+    # Repeatedly construct and evaluate neighborhood until no improvement can be made
     repeat
     {
-        # Construct and evaluate neighborhood
         best_neighbor <- NULL
         best_neighbor_score <- Inf
+
         # Loop over all edges
         l <- nrow(graph)
         for (v in 1:(l-1))
@@ -57,23 +56,28 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
     }
 }
 
+# gm.restart(nstart: int, prob: numeric, seed: numeric, observed: table, forward: bool, backward: bool, score: string)
+#   : list(model: list of cliques, score: numeric, call: string)
+# Repeatedly run gm.search on randomly generated initial graphs.
 gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = TRUE, score = 'bic')
 {
     set.seed(seed)
+    graphsize <- log(length(observed), 2)
 
     best_result <- NULL
     best_score <- Inf
     for(n in 1:nstart)
     {
         print(paste('Run', n))
+        graph.init = matrix(0, graphsize, graphsize)
 
-        graph.init = graph.empty(log(length(observed), 2))
         # Loop over all edges
         l <- nrow(graph.init)
         for (v in 1:(l-1))
         {
             for (w in (v+1):l)
             {
+                # Decide randomly if edge should be added
                 r <- runif(1, 0.0, 1.0)
                 if (r > prob)
                 {
@@ -83,6 +87,7 @@ gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = T
             }
         }
 
+        # Perform hill climbing search
         result <- gm.search(observed, graph.init, forward, backward, score)
         if (result$score < best_score)
         {
@@ -94,6 +99,9 @@ gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = T
     return(best_result)
 }
 
+# graph.assess(observed: table, graph: binary square matrix, score: numeric)
+#   : numeric
+# Compute the AIC or BIC (whichever specified) for the given graph w.r.t. the observed data.
 graph.assess = function(observed, graph, score)
 {
     # Detect the cliques from the graph
@@ -111,18 +119,26 @@ graph.assess = function(observed, graph, score)
         stop(paste('Invalid score parameter', score))
 }
 
+# AIC(model: list returned by loglin, observed: table, cliques: list of integer vectors)
+#   : numeric
+# Compute the AIC score for the given model w.r.t. the given data.
 AIC = function(model, observed, cliques)
 {
     dimension <- length(observed) - model$df
     return(model$lrt + 2 * dimension)
 }
 
+# BIC(model: list returned by loglin, observed: table, cliques: list of integer vectors)
+#   : numeric
+# Compute the BIC score for the given model w.r.t. the given data.
 BIC = function(model, observed, cliques)
 {
     dimension <- length(observed) - model$df
     return(model$lrt + log(sum(observed)) * dimension)
 }
 
+# bronkerbosch(graph: binary square matrix): list of integer vectors
+# Compute all cliques in given graph
 bronkerbosch = function(graph)
 {
     recursion <- function(include, rest, exclude)
@@ -152,3 +168,7 @@ bronkerbosch = function(graph)
 
     return(recursion(c(), 1:nrow(graph), c()))
 }
+
+# Utils
+assert = function(bool) if (!bool) stop('Assertion error')
+
