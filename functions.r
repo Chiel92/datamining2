@@ -1,35 +1,24 @@
+# TODO
+# - return trace in gm.search
+
 # Utils
 assert = function(bool) if (!bool) stop('Assertion error')
 
-graph.empty = function(size)
-{
-    return(matrix(replicate(size * size, 0), size))
-}
-
-# TEST
-combinations = function(l)
-{
-    for (v in 1:(l-1))
-        for (w in (v+1):l)
-            print(paste(v, w))
-}
+graph.empty = function(size) matrix(0, size, size)
 
 # graph.search
-gm.search = function(observed, graph, forward = TRUE, backward = TRUE)
+gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic')
 {
-    score <- graph.assess(observed, graph)
-    print(paste('Starting with score', score))
+    graph <- graph.init
+    modelscore <- graph.assess(observed, graph, score)
+    print(paste('Starting with score', modelscore))
 
-    iterations <- 1
-
-    while(TRUE)
+    repeat
     {
-        print(paste(iterations, 'th iteration'))
-        iterations <- iterations + 1
-
         # Construct and evaluate neighborhood
         best_neighbor <- NULL
         best_neighbor_score <- Inf
+        # Loop over all edges
         l <- nrow(graph)
         for (v in 1:(l-1))
         {
@@ -42,8 +31,8 @@ gm.search = function(observed, graph, forward = TRUE, backward = TRUE)
                     graph[w,v] <- 1 - graph[w,v]
 
                     # Evaluate the neighbor
-                    neighbor_score <- graph.assess(observed, graph)
-                    if (neighbor_score < score)
+                    neighbor_score <- graph.assess(observed, graph, score)
+                    if (neighbor_score < modelscore)
                     {
                         best_neighbor <- graph
                         best_neighbor_score <- neighbor_score
@@ -59,16 +48,53 @@ gm.search = function(observed, graph, forward = TRUE, backward = TRUE)
         # Return if no improvement else continue with best neighbors
         if (!is.null(best_neighbor))
         {
-            print(paste('Improving', score, 'to', best_neighbor_score))
+            print(paste('Improving to', best_neighbor_score))
             graph <- best_neighbor
-            score <- best_neighbor_score
+            modelscore <- best_neighbor_score
         }
         else
-            return(graph)
+            return(list(model = bronkerbosch(graph), score = modelscore, call = match.call()))
     }
 }
 
-graph.assess = function(observed, graph)
+gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = TRUE, score = 'bic')
+{
+    set.seed(seed)
+
+    best_result <- NULL
+    best_score <- Inf
+    for(n in 1:nstart)
+    {
+        print(paste('Run', n))
+
+        graph.init = graph.empty(log(length(observed), 2))
+        # Loop over all edges
+        l <- nrow(graph.init)
+        for (v in 1:(l-1))
+        {
+            for (w in (v+1):l)
+            {
+                r <- runif(1, 0.0, 1.0)
+                if (r > prob)
+                {
+                    graph.init[v,w] <- 1
+                    graph.init[w,v] <- 1
+                }
+            }
+        }
+
+        result <- gm.search(observed, graph.init, forward, backward, score)
+        if (result$score < best_score)
+        {
+            best_result <- result
+            best_score <- result$score
+        }
+    }
+
+    return(best_result)
+}
+
+graph.assess = function(observed, graph, score)
 {
     # Detect the cliques from the graph
     cliques <- bronkerbosch(graph)
@@ -77,8 +103,12 @@ graph.assess = function(observed, graph)
     model <- loglin(observed, cliques, print = FALSE)
 
     # Compute score and return
-    score <- BIC(model, observed, cliques)
-    return(score)
+    if (score == 'aic')
+        return(AIC(model, observed, cliques))
+    else if (score == 'bic')
+        return(BIC(model, observed, cliques))
+    else
+        stop(paste('Invalid score parameter', score))
 }
 
 AIC = function(model, observed, cliques)
