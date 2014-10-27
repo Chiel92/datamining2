@@ -15,7 +15,7 @@ combinations = function(l)
 }
 
 # graph.search
-graph.search = function(observed, graph)
+gm.search = function(observed, graph, forward = TRUE, backward = TRUE)
 {
     score <- graph.assess(observed, graph)
     print(paste('Starting with score', score))
@@ -29,27 +29,30 @@ graph.search = function(observed, graph)
 
         # Construct and evaluate neighborhood
         best_neighbor <- NULL
-        best_neighbor_score <- 0
+        best_neighbor_score <- Inf
         l <- nrow(graph)
         for (v in 1:(l-1))
         {
             for (w in (v+1):l)
             {
-                # Transform graph into a neighbor
-                graph[v,w] <- 1 - graph[v,w]
-                graph[w,v] <- 1 - graph[w,v]
-
-                # Evaluate the neighbor
-                neighbor_score <- graph.assess(observed, graph)
-                if (neighbor_score > score)
+                if (graph[v,w] == 0 && forward || graph[v,w] && backward)
                 {
-                    best_neighbor <- graph
-                    best_neighbor_score <- neighbor_score
-                }
+                    # Transform graph into a neighbor
+                    graph[v,w] <- 1 - graph[v,w]
+                    graph[w,v] <- 1 - graph[w,v]
 
-                # Undo the transformation
-                graph[v,w] <- 1 - graph[v,w]
-                graph[w,v] <- 1 - graph[w,v]
+                    # Evaluate the neighbor
+                    neighbor_score <- graph.assess(observed, graph)
+                    if (neighbor_score < score)
+                    {
+                        best_neighbor <- graph
+                        best_neighbor_score <- neighbor_score
+                    }
+
+                    # Undo the transformation
+                    graph[v,w] <- 1 - graph[v,w]
+                    graph[w,v] <- 1 - graph[w,v]
+                }
             }
         }
 
@@ -74,12 +77,21 @@ graph.assess = function(observed, graph)
     model <- loglin(observed, cliques, print = FALSE)
 
     # Compute score and return
-    score <- AIC(model)
-    #print(score)
+    score <- BIC(model, observed, cliques)
     return(score)
 }
 
-AIC = function(model) model$lrt + 2 * sum(2 ^ sapply(model$margin, length))
+AIC = function(model, observed, cliques)
+{
+    dimension <- length(observed) - model$df
+    return(model$lrt + 2 * dimension)
+}
+
+BIC = function(model, observed, cliques)
+{
+    dimension <- length(observed) - model$df
+    return(model$lrt + log(sum(observed)) * dimension)
+}
 
 bronkerbosch = function(graph)
 {
