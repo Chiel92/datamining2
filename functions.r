@@ -1,7 +1,3 @@
-# TODO
-# - return trace in gm.search
-# - pivoting
-
 # gm.search(observed: table, graph.init: binary square matrix, forward: bool, backward: bool, score: string)
 #   : list(model: list of cliques, score: numeric, call: string)
 # Perform a hill climbing search on graphical models to determine the best fitted model
@@ -10,13 +6,15 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
 {
     graph <- graph.init
     modelscore <- graph.assess(observed, graph, score)
-    print(paste('Starting with score', modelscore))
+    trace <- paste('Starting with score', modelscore)
+    print(trace)
 
     # Repeatedly construct and evaluate neighborhood until no improvement can be made
     repeat
     {
         best_neighbor <- NULL
         best_neighbor_score <- Inf
+        best_neighbor_msg <- NULL
 
         # Loop over all edges
         l <- nrow(graph)
@@ -36,6 +34,7 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
                     {
                         best_neighbor <- graph
                         best_neighbor_score <- neighbor_score
+                        best_neighbor_msg <- paste('Flip edge', v, w, 'yielding score', neighbor_score)
                     }
 
                     # Undo the transformation
@@ -48,12 +47,13 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
         # Return if no improvement else continue with best neighbors
         if (!is.null(best_neighbor))
         {
-            print(paste('Improving to', best_neighbor_score))
+            print(best_neighbor_msg)
             graph <- best_neighbor
             modelscore <- best_neighbor_score
+            trace <- c(trace, best_neighbor_msg)
         }
         else
-            return(list(model = bronkerbosch(graph), score = modelscore, call = match.call()))
+            return(list(model = bronkerbosch(graph), score = modelscore, trace = trace, call = match.call()))
     }
 }
 
@@ -152,12 +152,8 @@ bronkerbosch = function(graph)
         if (length(exclude) == 0 && length(rest) == 0)
             return(list(include))
 
-        #print(rest)
-        #print(length(rest))
-        pivot <- resample(union(rest, exclude), 1)
-        #pivot <- resample(rest, 1)
-        #print(pivot)
         result <- list()
+        pivot <- resample(union(rest, exclude), 1)
         for (v in setdiff(rest, neighbors(graph, pivot)))
         {
             recursive_result <- recursion(union(include, v),
@@ -178,6 +174,8 @@ bronkerbosch = function(graph)
 # Compute the neighborhood of a vertex.
 neighbors = function(graph, vertex) which(graph[vertex,] == 1)
 
+# resample(x: vector, ...): subvector of x
+# Same as sample, but does not treat single integers as ranges
 resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 # Utils
