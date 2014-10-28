@@ -4,14 +4,14 @@
 # for the observed data, according to the specified score function.
 gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic')
 {
-    graph <- graph.init
-    modelscore <- graph.assess(observed, graph, score)
+    modelscore <- graph.assess(observed, graph.init, score)
     trace <- paste('Starting with score', modelscore)
     print(trace)
 
     # Repeatedly construct and evaluate neighborhood until no improvement can be made
     repeat
     {
+        graph <- graph.init
         best_neighbor <- NULL
         best_neighbor_score <- NULL
         best_neighbor_msg <- NULL
@@ -44,21 +44,26 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
             }
         }
 
-        # Return if no improvement else continue with best neighbors
-        if (!is.null(best_neighbor))
-        {
-            print(best_neighbor_msg)
-            graph <- best_neighbor
-            modelscore <- best_neighbor_score
-            trace <- c(trace, best_neighbor_msg)
-        }
-        else
+        # Return if no improvement found else continue with best neighbor
+        if (is.null(best_neighbor))
         {
             #names <- c("1: cat1", "2: death", "3: swang1", "4: gender")
             names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
-            rownames(graph) <- names
-            colnames(graph) <- names
-            return(list(model = bronkerbosch(graph), score = modelscore, trace = trace, call = match.call(), graph = graph))
+            rownames(graph.init) <- names
+            colnames(graph.init) <- names
+
+            # Plot the graph
+            amgraph <- new("graphAM", adjMat = graph.init, edgemode = "undirected")
+            plot(am.graph, attrs = list(node = list(fillcolor = "lightblue", height=2), edge = list()))
+
+            return(list(model = bronkerbosch(graph.init), score = modelscore, trace = trace, call = match.call()))
+        }
+        else
+        {
+            print(best_neighbor_msg)
+            graph.init <- best_neighbor
+            modelscore <- best_neighbor_score
+            trace <- c(trace, best_neighbor_msg)
         }
     }
 }
