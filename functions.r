@@ -13,7 +13,7 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
     repeat
     {
         best_neighbor <- NULL
-        best_neighbor_score <- Inf
+        best_neighbor_score <- NULL
         best_neighbor_msg <- NULL
 
         # Loop over all edges
@@ -53,7 +53,13 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
             trace <- c(trace, best_neighbor_msg)
         }
         else
-            return(list(model = bronkerbosch(graph), score = modelscore, trace = trace, call = match.call()))
+        {
+            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender")
+            names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+            rownames(graph) <- names
+            colnames(graph) <- names
+            return(list(model = bronkerbosch(graph), score = modelscore, trace = trace, call = match.call(), graph = graph))
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-\title{Lab Assignment 1 \\ \small{Datamining}}
+\title{Lab Assignment 2 \\ \small{Datamining}}
 \author{Chiel ten Brinke 3677133}
 \documentclass[12pt]{article}
 \usepackage{amssymb,amsmath,amsthm,enumerate,graphicx,float,lmodern}
@@ -19,12 +19,22 @@
 \begin{document}
 \maketitle
 
-\section{Data Set}
-\label{sec:dataset}
+\section*{Data Analysis}
+\label{sec:data_analysis}
 
+\subsection*{a}
+There are 10 variables, so there are $\frac{10 \cdot 9}{2} = 45$ undirected edges.
+Since each combination of edges represents exactly one graphical model,
+there are $2^{45} = 35184372088832$ possible graphical models.
 
-\section{Results}
-\label{sec:results}
+\subsection*{b}
+The table of counts has a cell for each combination of variable values.
+This comes down to $9 \cdot 2 \cdot 2 \cdot 2 \cdot 3 \cdot 6 \cdot 4 \cdot 3 \cdot 5 \cdot 2 = 155520$ possible combinations.
+This is confirmed by taking the length function of the table of counts in R.
+The number of parameters of the saturated model equals the number of cells in the table of counts.
+
+\subsection*{c}
+Cliques: 
 
 
 \end{document}
