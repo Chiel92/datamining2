@@ -1,5 +1,6 @@
 # TODO
 # - return trace in gm.search
+# - pivoting
 
 # gm.search(observed: table, graph.init: binary square matrix, forward: bool, backward: bool, score: string)
 #   : list(model: list of cliques, score: numeric, call: string)
@@ -151,13 +152,17 @@ bronkerbosch = function(graph)
         if (length(exclude) == 0 && length(rest) == 0)
             return(list(include))
 
+        #print(rest)
+        #print(length(rest))
+        pivot <- resample(union(rest, exclude), 1)
+        #pivot <- resample(rest, 1)
+        #print(pivot)
         result <- list()
-        for (v in rest)
+        for (v in setdiff(rest, neighbors(graph, pivot)))
         {
-            neighbors <- which(graph[v,] == 1)
             recursive_result <- recursion(union(include, v),
-                                          intersect(rest, neighbors),
-                                          intersect(exclude, neighbors))
+                                          intersect(rest, neighbors(graph, v)),
+                                          intersect(exclude, neighbors(graph, v)))
             rest <- setdiff(rest, v)
             exclude <- union(exclude, v)
 
@@ -168,6 +173,12 @@ bronkerbosch = function(graph)
 
     return(recursion(c(), 1:nrow(graph), c()))
 }
+
+# neighbors(graph: binary square matrix, vertex: int): vector of integers
+# Compute the neighborhood of a vertex.
+neighbors = function(graph, vertex) which(graph[vertex,] == 1)
+
+resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 # Utils
 assert = function(bool) if (!bool) stop('Assertion error')
