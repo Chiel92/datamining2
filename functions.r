@@ -2,16 +2,18 @@
 #   : list(model: list of cliques, score: numeric, call: string)
 # Perform a hill climbing search on graphical models to determine the best fitted model
 # for the observed data, according to the specified score function.
-gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic')
+gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic', print = TRUE)
 {
-    modelscore <- graph.assess(observed, graph.init, score)
+    bestgraph <- graph.init
+    modelscore <- graph.assess(observed, bestgraph, score)
     trace <- paste('Starting with score', modelscore)
-    print(trace)
+    if (print)
+        print(trace)
 
     # Repeatedly construct and evaluate neighborhood until no improvement can be made
     repeat
     {
-        graph <- graph.init
+        graph <- bestgraph
         best_neighbor <- NULL
         best_neighbor_score <- NULL
         best_neighbor_msg <- NULL
@@ -47,40 +49,71 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
         # Return if no improvement found else continue with best neighbor
         if (is.null(best_neighbor))
         {
-            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender")
-            names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
-            rownames(graph.init) <- names
-            colnames(graph.init) <- names
-
             # Plot the graph
-            amgraph <- new("graphAM", adjMat = graph.init, edgemode = "undirected")
-            plot(am.graph, attrs = list(node = list(fillcolor = "lightblue", height=2), edge = list()))
+            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race")
+            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+            #rownames(bestgraph) <- names
+            #colnames(bestgraph) <- names
+            #my_plot(bestgraph)
 
-            return(list(model = bronkerbosch(graph.init), score = modelscore, trace = trace, call = match.call()))
+            return(list(model = bronkerbosch(bestgraph), score = modelscore, trace = trace, call = match.call()))
         }
         else
         {
-            print(best_neighbor_msg)
-            graph.init <- best_neighbor
+            if (print)
+                print(best_neighbor_msg)
+            bestgraph <- best_neighbor
             modelscore <- best_neighbor_score
             trace <- c(trace, best_neighbor_msg)
         }
     }
 }
 
+my_plot = function(graph)
+{
+    amgraph <- new("graphAM", adjMat = graph, edgemode = "undirected")
+    plot(amgraph, attrs = list(node = list(fillcolor = "lightblue", height=2), edge = list()))
+}
+
+generate_nstart_prob_plot = function()
+{
+    result <- ""
+    nstartvalues <- seq(from = 10, to = 100, by = 20)
+    probvalues <- seq(from = 0.1, to = 0.9, by = 0.2)
+    for(nstart in nstartvalues)
+        for(prob in probvalues)
+        {
+            print(paste(nstart, prob))
+            score_sum <- 0
+            for(i in 1:10)
+            {
+                vars <- sample(1:10, 4)
+                observed <- table(rhc_small.dat[,vars])
+                score_sum <- score_sum + gm.restart(nstart, prob, 37, observed, score='bic', graphsize=length(vars), print = FALSE)$score
+            }
+            result <- cbind(result, paste(toString(nstart), ', ',
+                            toString(prob*100), ', ',
+                            toString(score_sum / 10)))
+        }
+
+    write(result, file = 'output.txt')
+}
+
+
 # gm.restart(nstart: int, prob: numeric, seed: numeric, observed: table, forward: bool, backward: bool, score: string)
 #   : list(model: list of cliques, score: numeric, call: string)
 # Repeatedly run gm.search on randomly generated initial graphs.
-gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = TRUE, score = 'bic')
+gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = TRUE, score = 'bic', graphsize = 10, print = TRUE)
 {
     set.seed(seed)
-    graphsize <- log(length(observed), 2)
+    #graphsize <- log(length(observed), 2)
 
     best_result <- NULL
     best_score <- Inf
     for(n in 1:nstart)
     {
-        print(paste('Run', n))
+        if (print)
+            print(paste('Run', n))
         graph.init = matrix(0, graphsize, graphsize)
 
         # Loop over all edges
@@ -100,7 +133,7 @@ gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = T
         }
 
         # Perform hill climbing search
-        result <- gm.search(observed, graph.init, forward, backward, score)
+        result <- gm.search(observed, graph.init, forward, backward, score, print = print)
         if (result$score < best_score)
         {
             best_result <- result
@@ -114,39 +147,22 @@ gm.restart = function(nstart, prob, seed, observed, forward = TRUE, backward = T
 # graph.assess(observed: table, graph: binary square matrix, score: numeric)
 #   : numeric
 # Compute the AIC or BIC (whichever specified) for the given graph w.r.t. the observed data.
-graph.assess = function(observed, graph, score)
+graph.assess = function(observed, graph, score='bic')
 {
     # Detect the cliques from the graph
     cliques <- bronkerbosch(graph)
 
     # Use loglin to generate fitted model to the cliques
     model <- loglin(observed, cliques, print = FALSE)
+    dimension <- length(observed) - model$df
 
     # Compute score and return
     if (score == 'aic')
-        return(AIC(model, observed, cliques))
+        return(model$lrt + 2 * dimension)
     else if (score == 'bic')
-        return(BIC(model, observed, cliques))
+        return(model$lrt + log(sum(observed)) * dimension)
     else
         stop(paste('Invalid score parameter', score))
-}
-
-# AIC(model: list returned by loglin, observed: table, cliques: list of integer vectors)
-#   : numeric
-# Compute the AIC score for the given model w.r.t. the given data.
-AIC = function(model, observed, cliques)
-{
-    dimension <- length(observed) - model$df
-    return(model$lrt + 2 * dimension)
-}
-
-# BIC(model: list returned by loglin, observed: table, cliques: list of integer vectors)
-#   : numeric
-# Compute the BIC score for the given model w.r.t. the given data.
-BIC = function(model, observed, cliques)
-{
-    dimension <- length(observed) - model$df
-    return(model$lrt + log(sum(observed)) * dimension)
 }
 
 # bronkerbosch(graph: binary square matrix): list of integer vectors

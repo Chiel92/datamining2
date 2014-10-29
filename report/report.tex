@@ -22,6 +22,9 @@
 \section*{Data Analysis}
 \label{sec:data_analysis}
 
+\paragraph{Note}
+The Bron-Kerbosch algorithm has not been taken from the site, but has been implemented manually.
+
 \subsection*{a}
 There are 10 variables, so there are $\frac{10 \cdot 9}{2} = 45$ undirected edges.
 Since each combination of edges represents exactly one graphical model,
@@ -36,5 +39,44 @@ The number of parameters of the saturated model equals the number of cells in th
 \subsection*{c}
 Cliques: 
 
+\subsection*{h}
+To get a first impression of how the parameters nstart and prob relate to the score functions,
+let us perform series of small tests for varying parameters and construct a graph from this.
+To keep the compution time within reasonable bounds, we work with a randomly sampled subset
+from the original dataset.
+Moreover, we will not consider all 10 variables during the hill climbing part, but only a subset.
+For each configuraton of the parameters, we run the hill climbing algorithm 10 times with 4
+randomly chosen variables.
+The average score of these runs is taken to be the final outcome for this configuraton.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{rough2.png}
+    \caption{BIC score as a function of nstart and prob.}
+\label{fig:rough}
+\end{figure}
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+    nstart & prob & AIC \\
+    \hline \hline
+    10 & 0.5  & 0.0966667 \\
+\end{tabular}
+\caption{AIC score as a function of nstart and prob.}
+\label{table1}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+    nstart & prob & BIC \\
+    \hline \hline
+    10 & 0.5  & 0.0966667 \\
+\end{tabular}
+\caption{BIC score as a function of nstart and prob.}
+\label{table1}
+\end{table}
 
 \end{document}
