@@ -99,6 +99,28 @@ generate_nstart_prob_plot = function()
     write(result, file = 'output.txt')
 }
 
+get_data = function()
+{
+    result <- ""
+    nstartvalues <- c(1)
+    probvalues <- c(0.4)
+    #nstartvalues <- c(1, 5, 10)
+    #probvalues <- c(0.4, 0.5, 0.6)
+
+    for(nstart in nstartvalues)
+        for(prob in probvalues)
+            for(score in list('aic', 'bic'))
+            {
+                print(paste(nstart, prob))
+                score_val <- gm.restart(nstart, prob, 37, observed, score=score, print = FALSE)$score
+                result <- cbind(result, paste(toString(nstart), ', ',
+                                toString(prob), ', ',
+                                score, '=',
+                                toString(score_val)))
+            }
+
+    write(result, file = 'output.txt')
+}
 
 # gm.restart(nstart: int, prob: numeric, seed: numeric, observed: table, forward: bool, backward: bool, score: string)
 #   : list(model: list of cliques, score: numeric, call: string)
