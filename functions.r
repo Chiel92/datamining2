@@ -51,12 +51,12 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
         {
             # Plot the graph
             #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race")
-            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
-            #rownames(bestgraph) <- names
-            #colnames(bestgraph) <- names
-            #my_plot(bestgraph)
+            names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+            rownames(bestgraph) <- names
+            colnames(bestgraph) <- names
+            my_plot(bestgraph)
 
-            return(list(model = bronkerbosch(bestgraph), score = modelscore, trace = trace, call = match.call()))
+            return(list(model = bronkerbosch(bestgraph), score = modelscore, trace = trace, call = match.call(), graph=bestgraph))
         }
         else
         {
@@ -102,10 +102,8 @@ generate_nstart_prob_plot = function()
 get_data = function()
 {
     result <- ""
-    nstartvalues <- c(1)
-    probvalues <- c(0.4)
-    #nstartvalues <- c(1, 5, 10)
-    #probvalues <- c(0.4, 0.5, 0.6)
+    nstartvalues <- c(1, 5, 10)
+    probvalues <- c(0.4, 0.5, 0.6)
 
     for(nstart in nstartvalues)
         for(prob in probvalues)
@@ -113,10 +111,9 @@ get_data = function()
             {
                 print(paste(nstart, prob))
                 score_val <- gm.restart(nstart, prob, 37, observed, score=score, print = FALSE)$score
-                result <- cbind(result, paste(toString(nstart), ', ',
-                                toString(prob), ', ',
-                                score, '=',
-                                toString(score_val)))
+                msg <- paste(toString(nstart), ', ', toString(prob), ', ', score, '=', toString(score_val))
+                print(msg)
+                result <- cbind(result, msg)
             }
 
     write(result, file = 'output.txt')
