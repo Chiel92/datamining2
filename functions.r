@@ -71,6 +71,9 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
 
 my_plot = function(graph)
 {
+    names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+    rownames(graph) <- names
+    colnames(graph) <- names
     amgraph <- new("graphAM", adjMat = graph, edgemode = "undirected")
     plot(amgraph, attrs = list(node = list(fillcolor = "lightblue", height=2), edge = list()))
 }
