@@ -51,11 +51,13 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
         if (is.null(best_neighbor))
         {
             # Plot the graph
-            #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race")
-            names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
-            rownames(bestgraph) <- names
-            colnames(bestgraph) <- names
-            my_plot(bestgraph)
+            if (print)
+            {
+                names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+                rownames(bestgraph) <- names
+                colnames(bestgraph) <- names
+                my_plot(bestgraph)
+            }
 
             return(list(model = bronkerbosch(bestgraph), score = bestscore, trace = trace, call = match.call(), graph=bestgraph))
         }
@@ -73,55 +75,107 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
 my_plot = function(graph)
 {
     names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race", "6: ninsclas", "7: income", "8: ca", "9: age", "10: meanbp1")
+    #names <- c("1: cat1", "2: death", "3: swang1", "4: gender", "5: race")
     rownames(graph) <- names
     colnames(graph) <- names
     amgraph <- new("graphAM", adjMat = graph, edgemode = "undirected")
     plot(amgraph, attrs = list(node = list(fillcolor = "lightblue", height=2), edge = list()))
 }
 
-generate_nstart_prob_plot = function()
-{
-    result <- ""
-    nstartvalues <- seq(from = 10, to = 100, by = 20)
-    probvalues <- seq(from = 0.1, to = 0.9, by = 0.2)
-    for(nstart in nstartvalues)
-        for(prob in probvalues)
-        {
-            print(paste(nstart, prob))
-            score_sum <- 0
-            for(i in 1:10)
-            {
-                vars <- sample(1:10, 4)
-                observed <- table(rhc_small.dat[,vars])
-                score_sum <- score_sum + gm.restart(nstart, prob, 37, observed, score='bic', graphsize=length(vars), print = FALSE)$score
-            }
-            result <- cbind(result, paste(toString(nstart), ', ',
-                            toString(prob*100), ', ',
-                            toString(score_sum / 10)))
-        }
 
-    write(result, file = 'output.txt')
+randomgraph = function(prob, seed)
+{
+    set.seed(seed)
+    graph.init = matrix(0, 10, 10)
+
+    # Loop over all edges
+    l <- nrow(graph.init)
+    for (v in 1:(l-1))
+    {
+        for (w in (v+1):l)
+        {
+            # Decide randomly if edge should be added
+            r <- runif(1, 0.0, 1.0)
+            if (r > prob)
+            {
+                graph.init[v,w] <- 1
+                graph.init[w,v] <- 1
+            }
+        }
+    }
+
+    return(graph.init)
 }
+
 
 get_data = function()
 {
-    result <- ""
-    nstartvalues <- c(1, 5, 10)
-    probvalues <- c(0.4, 0.5, 0.6)
+    print('---------BIC----------')
+    generate_nstart_prob_plot('bic', 'bic_plot.txt')
+    print('---------AIC----------')
+    generate_nstart_prob_plot('aic', 'aic_plot.txt')
+}
 
-    for(nstart in nstartvalues)
-        for(prob in probvalues)
-            for(score in list('aic', 'bic'))
+
+generate_nstart_prob_plot = function(score, filename)
+{
+    csv_output <- ""
+    runs <- 1:10
+    probvalues <- seq(from = 0.1, to = 0.9, by = 0.2)
+    for(prob in probvalues)
+    {
+        best_result <- NULL
+        best_score <- Inf
+        for(run in runs)
+        {
+            seed = run
+            graph.init <- randomgraph(prob, seed)
+            result <- gm.search(observed, graph.init, forward = TRUE, backward = TRUE, score = score, print = FALSE)
+
+            if (result$score < best_score)
             {
-                print(paste(nstart, prob))
-                score_val <- gm.restart(nstart, prob, 37, observed, score=score, print = FALSE)$score
-                msg <- paste(toString(nstart), ', ', toString(prob), ', ', score, '=', toString(score_val))
-                print(msg)
-                result <- cbind(result, msg)
+                best_result <- result
+                best_score <- result$score
+                best_seed <- seed
             }
 
-    write(result, file = 'output.txt')
+            msg <- paste(toString(run), ', ', toString(prob), ', ', toString(best_score))
+            print(msg)
+            csv_output <- cbind(csv_output, msg)
+        }
+
+        print(paste('With prob=', toString(prob), 'best score is', toString(best_score), 'with seed=', toString(seed)))
+    }
+
+    write(csv_output, file = filename)
 }
+
+draw_nstart_prob_plot = function()
+{
+    plot.dat <- read.csv('nstart_prob_plot.txt', header=FALSE, col.names=c('nstart', 'prob', 'score'))
+    print(plot.dat)
+    levelplot(score ~ nstart + prob, data=plot.dat, col.regions=heat.colors)
+}
+
+#get_data = function()
+#{
+    #result <- ""
+    #nstartvalues <- c(1, 5, 10)
+    #probvalues <- c(0.4, 0.5, 0.6)
+
+    #for(nstart in nstartvalues)
+        #for(prob in probvalues)
+            #for(score in list('aic', 'bic'))
+            #{
+                #print(paste(nstart, prob))
+                #score_val <- gm.restart(nstart, prob, 37, observed, score=score, print = FALSE)$score
+                #msg <- paste(toString(nstart), ', ', toString(prob), ', ', score, '=', toString(score_val))
+                #print(msg)
+                #result <- cbind(result, msg)
+            #}
+
+    #write(result, file = 'output.txt')
+#}
 
 # gm.restart(nstart: int, prob: numeric, seed: numeric, observed: table, forward: bool, backward: bool, score: string)
 #   : list(model: list of cliques, score: numeric, call: string)
