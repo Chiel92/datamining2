@@ -57,9 +57,9 @@ $\set{4,6}$, $\set{5,6}$, $\set{5,10}$, $\set{6,7}$, $\set{6,8}$, $\set{6, 9}$
 \end{figure}
 
 \section*{d}
-Income and gender are independent given ninsclas, because of the separator property.
-To predict whether a patient will survive, we only need ca, age and meanbp1, because
-death is independent of all other variables when these are given.
+\texttt{income} and \texttt{gender} are independent given \texttt{ninsclas}, because of the separator property.
+To predict whether a patient will survive, we only need \texttt{ca}, \texttt{age} and \texttt{meanbp1}, because
+\texttt{death} is independent of all other variables when these are given.
 
 \section*{e}
 \paragraph{Cliques}
@@ -123,8 +123,12 @@ $\set{7,5,6}$, $\set{9,5,6}$
 The models found with AIC are more complex than the models found with BIC.
 This is because BIC penalizes complex models harder than AIC.
 
+The models found with AIC are equal because it is more likely to find the
+same model from the empty model if the penalty for complexity is low: it will
+be less likely that the algorithm will stop because the model is too complex.
+
 \section*{h}
-To get a first impression of how the parameters nstart and prob relate to the score functions,
+To get a first impression of how the parameters \texttt{nstart} and \texttt{prob} relate to the score functions,
 let us perform series of small tests for varying parameters and construct a 3d graph from this.
 To keep the compution time within reasonable bounds, we work with a randomly sampled subset
 from the original dataset.
@@ -144,7 +148,7 @@ The result is shown in Figure~\ref{fig:rough}.
 \end{figure}
 
 As one can see, the graph is not entirely unambiguous but the best scores seem to
-center around the point where prob is around 0.5 and nstart is as high as possible.
+center around the point where \texttt{prob} is around 0.5 and \texttt{nstart} is as high as possible.
 The latter is very natural, as the result cannot get worse when more restarts are done.
 
 Keeping this in mind, we perform several runs on the full dataset and using all variables.
