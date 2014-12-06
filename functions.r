@@ -5,8 +5,8 @@
 gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, score = 'bic', print = TRUE)
 {
     bestgraph <- graph.init
-    modelscore <- graph.assess(observed, bestgraph, score)
-    trace <- paste('Starting with score', modelscore)
+    bestscore <- graph.assess(observed, bestgraph, score)
+    trace <- paste('Starting with score', bestscore)
     if (print)
         print(trace)
 
@@ -15,8 +15,7 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
     {
         graph <- bestgraph
         best_neighbor <- NULL
-        best_neighbor_score <- NULL
-        best_neighbor_msg <- NULL
+        score_threshold <- bestscore
 
         # Loop over all edges
         l <- nrow(graph)
@@ -32,8 +31,10 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
 
                     # Evaluate the neighbor
                     neighbor_score <- graph.assess(observed, graph, score)
-                    if (neighbor_score < modelscore)
+                    if (neighbor_score < score_threshold)
                     {
+                        score_threshold <- neighbor_score
+
                         best_neighbor <- graph
                         best_neighbor_score <- neighbor_score
                         best_neighbor_msg <- paste('Flip edge', v, w, 'yielding score', neighbor_score)
@@ -56,14 +57,14 @@ gm.search = function(observed, graph.init, forward = TRUE, backward = TRUE, scor
             colnames(bestgraph) <- names
             my_plot(bestgraph)
 
-            return(list(model = bronkerbosch(bestgraph), score = modelscore, trace = trace, call = match.call(), graph=bestgraph))
+            return(list(model = bronkerbosch(bestgraph), score = bestscore, trace = trace, call = match.call(), graph=bestgraph))
         }
         else
         {
             if (print)
                 print(best_neighbor_msg)
             bestgraph <- best_neighbor
-            modelscore <- best_neighbor_score
+            bestscore <- best_neighbor_score
             trace <- c(trace, best_neighbor_msg)
         }
     }

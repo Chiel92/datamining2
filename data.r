@@ -40,3 +40,5 @@ graph3 <- matrix(c(0, 0, 1, 0, 0, 0, 0, 1, 1, 1,
                    1, 1, 0, 0, 1, 1, 0, 0, 0, 0,
                    1, 1, 1, 0, 1, 0, 0, 0, 0, 0), 10)
 
+library(Rgraphviz)
+emptygraph = matrix(replicate(100, 0), 10, 10)

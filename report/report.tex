@@ -42,11 +42,10 @@ The number of parameters of the saturated model equals the number of cells in th
 
 \section*{c}
 \paragraph{Cliques}
-$\set{1,8}$, $\set{1,9}$, $\set{1,10}$, $\set{2,7}$, $\set{2,8}$, $\set{2,9}$, $\set{2,10}$,
-$\set{4,3}$, $\set{4,6}$, $\set{5,7}$, $\set{5,9}$, $\set{5,10}$, $\set{7,6}$, $\set{8,3}$,
-$\set{8,6}$, $\set{9,3}$, $\set{9,6}$, $\set{10,3}$
+$\set{1,3,10}$, $\set{1,8}$, $\set{1,9}$, $\set{2,8}$, $\set{2,9}$, $\set{2,10}$, $\set{3,6}$,
+$\set{4,6}$, $\set{5,6}$, $\set{5,10}$, $\set{6,7}$, $\set{6,8}$, $\set{6, 9}$
 
-\paragraph{BIC Score} 16000.28
+\paragraph{BIC Score} 15841.66
 
 \paragraph{Graph} See Figure~\ref{fig:c}
 
@@ -58,15 +57,15 @@ $\set{8,6}$, $\set{9,3}$, $\set{9,6}$, $\set{10,3}$
 \end{figure}
 
 \section*{d}
-Income and gender are independent given ninsclas and swang1, because of the separator property.
-To estimate whether a patient will survive, we only need ca, income, age and meanbp1, because
+Income and gender are independent given ninsclas, because of the separator property.
+To predict whether a patient will survive, we only need ca, age and meanbp1, because
 death is independent of all other variables when these are given.
 
 \section*{e}
 \paragraph{Cliques}
-$\set{4,3}$, $\set{4,6}$, $\set{6,7}$, $\set{6,8}$, $\set{6,9}$, $\set{7,2}$, $\set{7,5}$,
-$\set{8,1}$, $\set{8,2}$, $\set{8,3}$, $\set{9,1}$, $\set{9,2}$, $\set{9,3}$, $\set{9,5}$,
-$\set{10,1}$, $\set{10,2}$, $\set{10,3}$, $\set{10,5}$,
+$\set{1,3,10}$, $\set{1,8}$, $\set{2,7}$, $\set{2,8}$, $\set{2,9}$, $\set{2,10}$,
+$\set{3,4}$, $\set{3,9}$, $\set{4,6}$, $\set{5,7}$, $\set{5,9}$, $\set{5,10}$,
+$\set{6,7}$, $\set{6,8}$, $\set{6,9}$
 
 \paragraph{BIC Score} 15850.53
 
@@ -83,41 +82,42 @@ This model has a lower (thus better) BIC score than the model generated in c.
 So this model is considered to be a better model.
 
 \section*{f}
-\subsection*{From empty graph}
+In both cases the algorithm gives the same result.
+
 \paragraph{Cliques}
-$\set{1,2,8}$, $\set{2,1,9}$, $\set{2,1,10}$, $\set{2,7}$, $\set{3,1,9}$, $\set{3,1,10}$,
-$\set{3,6,9}$, $\set{4,1,8}$, $\set{4,1,10}$, $\set{4,7,6}$, $\set{4,8,6}$, $\set{5,7,6}$,
-$\set{5,9,6}$, $\set{5,10}$
+$\set{1,2,8}$, $\set{1,2,9}$, $\set{1,2,10}$, $\set{1,3,9}$, $\set{1,3,10}$, $\set{1,4,8}$,
+$\set{1,4,10}$, $\set{3,6,9}$, $\set{4,5,6}$, $\set{4,5,10}$, $\set{4,8,6}$, $\set{7,2}$,
+$\set{7,5,6}$, $\set{9,5,6}$
 
-\paragraph{AIC Score} 14284.21
+\paragraph{AIC Score} 14278.21
 
-\paragraph{Graph} See Figure~\ref{fig:f1}
+\paragraph{Graph} See Figure~\ref{fig:f}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{f1.png}
-    \caption{Independence graph of backward forward search from empty graph using AIC.}
-\label{fig:f1}
+    \includegraphics[width=0.8\linewidth]{f.png}
+    \caption{Independence graph of backward forward search from empty graph or complete graph using AIC.}
+\label{fig:f}
 \end{figure}
 
-\subsection*{From complete graph}
-\paragraph{Cliques}
-$\set{1,2,8}$, $\set{1,2,10}$, $\set{1,4,3}$, $\set{1,4,8}$, $\set{1,6}$, $\set{1,10,3}$,
-$\set{7,2}$, $\set{7,3,4}$, $\set{7,5,6}$, $\set{8,2,9}$, $\set{8,4,9}$, $\set{9,3,4}$,
-$\set{9,5,6}$, $\set{10,5}$
+%\subsection*{From complete graph}
+%\paragraph{Cliques}
+%$\set{1,2,8}$, $\set{1,2,10}$, $\set{1,4,3}$, $\set{1,4,8}$, $\set{1,6}$, $\set{1,10,3}$,
+%$\set{7,2}$, $\set{7,3,4}$, $\set{7,5,6}$, $\set{8,2,9}$, $\set{8,4,9}$, $\set{9,3,4}$,
+%$\set{9,5,6}$, $\set{10,5}$
 
-\paragraph{AIC Score} 14341.65
+%\paragraph{AIC Score} 14278.21
 
-\paragraph{Graph} See Figure~\ref{fig:f2}
+%\paragraph{Graph} See Figure~\ref{fig:f2}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\linewidth]{f2.png}
-    \caption{Independence graph of backward forward search from complete graph using AIC.}
-\label{fig:f2}
-\end{figure}
+%\begin{figure}[H]
+    %\centering
+    %\includegraphics[width=0.8\linewidth]{f2.png}
+    %\caption{Independence graph of backward forward search from complete graph using AIC.}
+%\label{fig:f2}
+%\end{figure}
 
-The two resulting models are almost the same, but there are some small differences.
+%The two resulting models are almost the same, but there are some small differences.
 
 \section*{g}
 The models found with AIC are more complex than the models found with BIC.
