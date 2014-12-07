@@ -120,8 +120,8 @@ get_data = function()
 generate_nstart_prob_plot = function(score, filename)
 {
     csv_output <- ""
-    runs <- 1:10
-    probvalues <- seq(from = 0.2, to = 0.8, by = 0.2)
+    runs <- 11:20
+    probvalues <- seq(from = 0.1, to = 0.9, by = 0.1)
     for(prob in probvalues)
     {
         best_result <- NULL
@@ -144,7 +144,7 @@ generate_nstart_prob_plot = function(score, filename)
             csv_output <- cbind(csv_output, msg)
         }
 
-        print(paste('With prob=', toString(prob), 'best score is', toString(best_score), 'with seed=', toString(seed)))
+        print(paste('With prob=', toString(prob), 'best score is', toString(best_score), 'with seed=', toString(best_seed)))
     }
 
     write(csv_output, file = filename)
