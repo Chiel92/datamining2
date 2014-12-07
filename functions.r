@@ -121,7 +121,7 @@ generate_nstart_prob_plot = function(score, filename)
 {
     csv_output <- ""
     runs <- 1:10
-    probvalues <- seq(from = 0.1, to = 0.9, by = 0.2)
+    probvalues <- seq(from = 0.2, to = 0.8, by = 0.2)
     for(prob in probvalues)
     {
         best_result <- NULL
@@ -152,8 +152,7 @@ generate_nstart_prob_plot = function(score, filename)
 
 draw_nstart_prob_plot = function()
 {
-    plot.dat <- read.csv('nstart_prob_plot.txt', header=FALSE, col.names=c('nstart', 'prob', 'score'))
-    print(plot.dat)
+    plot.dat <- read.csv('bic_plot.txt', header=FALSE, col.names=c('nstart', 'prob', 'score'))
     levelplot(score ~ nstart + prob, data=plot.dat, col.regions=heat.colors)
 }
 
