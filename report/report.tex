@@ -29,18 +29,18 @@
     \item For all computations we used the same seed, namely 37.
 \end{itemize}
 
-\section*{a}
+\section*{Question A}
 There are 10 variables, so there are $\frac{10 \cdot 9}{2} = 45$ undirected edges.
 Since each combination of edges represents exactly one graphical model,
 there are $2^{45} = 35184372088832$ possible graphical models.
 
-\section*{b}
+\section*{Question B}
 The table of counts has a cell for each combination of variable values.
 This comes down to $9 \cdot 2 \cdot 2 \cdot 2 \cdot 3 \cdot 6 \cdot 4 \cdot 3 \cdot 5 \cdot 2 = 155520$ possible combinations.
 This is confirmed by taking the length function of the table of counts in R.
 The number of parameters of the saturated model equals the number of cells in the table of counts.
 
-\section*{c}
+\section*{Question C}
 \paragraph{Cliques}
 $\set{1,3,10}$, $\set{1,8}$, $\set{1,9}$, $\set{2,8}$, $\set{2,9}$, $\set{2,10}$, $\set{3,6}$,
 $\set{4,6}$, $\set{5,6}$, $\set{5,10}$, $\set{6,7}$, $\set{6,8}$, $\set{6, 9}$
@@ -56,12 +56,12 @@ $\set{4,6}$, $\set{5,6}$, $\set{5,10}$, $\set{6,7}$, $\set{6,8}$, $\set{6, 9}$
 \label{fig:c}
 \end{figure}
 
-\section*{d}
+\section*{Question D}
 \texttt{income} and \texttt{gender} are independent given \texttt{ninsclas}, because of the separator property.
 To predict whether a patient will survive, we only need \texttt{ca}, \texttt{age} and \texttt{meanbp1}, because
 \texttt{death} is independent of all other variables when these are given.
 
-\section*{e}
+\section*{Question E}
 \paragraph{Cliques}
 $\set{1,3,10}$, $\set{1,8}$, $\set{2,7}$, $\set{2,8}$, $\set{2,9}$, $\set{2,10}$,
 $\set{3,4}$, $\set{3,9}$, $\set{4,6}$, $\set{5,7}$, $\set{5,9}$, $\set{5,10}$,
@@ -81,7 +81,7 @@ $\set{6,7}$, $\set{6,8}$, $\set{6,9}$
 This model has a lower (thus better) BIC score than the model generated in c.
 So this model is considered to be a better model.
 
-\section*{f}
+\section*{Question F}
 In both cases the algorithm gives the same result.
 
 \paragraph{Cliques}
@@ -119,7 +119,7 @@ $\set{7,5,6}$, $\set{9,5,6}$
 
 %The two resulting models are almost the same, but there are some small differences.
 
-\section*{g}
+\section*{Question G}
 The models found with AIC are more complex than the models found with BIC.
 This is because BIC penalizes complex models harder than AIC.
 
@@ -127,67 +127,55 @@ The models found with AIC are equal because it is more likely to find the
 same model from the empty model if the penalty for complexity is low: it will
 be less likely that the algorithm will stop because the model is too complex.
 
-\section*{h}
-To get a first impression of how the parameters \texttt{nstart} and \texttt{prob} relate to the score functions,
-let us perform series of small tests for varying parameters and construct a 3d graph from this.
-To keep the compution time within reasonable bounds, we work with a randomly sampled subset
-from the original dataset.
-Moreover, we will not consider all 10 variables during the hill climbing part, but only a subset.
-For each configuraton of the parameters, we run the hill climbing algorithm 10 times with 4
-randomly chosen variables.
-The average score of these runs is taken to be the final outcome for this configuraton.
-This will not give a completely reliable result, but hopefully it will give an approximate
-idea of how the parameters nstart and prob influence the quality of the model.
-The result is shown in Figure~\ref{fig:rough}.
+\section*{Question H}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{rough2.png}
-    \caption{BIC score as a function of nstart and prob.}
-\label{fig:rough}
+    \includegraphics[width=0.8\linewidth]{aic_plot.png}
+    \caption{AIC score as a function of \texttt{nstart} and \texttt{prob}.}
+\label{fig:aic_plot}
 \end{figure}
 
-As one can see, the graph is not entirely unambiguous but the best scores seem to
-center around the point where \texttt{prob} is around 0.5 and \texttt{nstart} is as high as possible.
-The latter is very natural, as the result cannot get worse when more restarts are done.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{bic_plot.png}
+    \caption{BIC score as a function of \texttt{nstart} and \texttt{prob}.}
+\label{fig:bic_plot}
+\end{figure}
 
-Keeping this in mind, we perform several runs on the full dataset and using all variables.
-The results are stated in Table~\ref{table1}.
+One can immediately see that the score improves as \texttt{nstart} increases.
+This is very natural, as the result cannot get worse when more restarts are done.
 
-\begin{table}[H]
-\centering
-\begin{tabular}{llll}
-    nstart & prob & AIC & BIC \\
-    \hline \hline
-    1 & 0.4 & 14344.95 & 15791.47 \\
-    1 & 0.5 & 14341.64 & 15905.87 \\
-    1 & 0.6 & 14341.64 & 15791.47 \\
-    5 & 0.4 & 14263.97 & 15783.74 \\
-    5 & 0.5 & 14278.21 & 15849.38 \\
-    5 & 0.6 & 14263.97 & 15783.74 \\
-    10 & 0.4 & 14263.97 & 15783.74 \\
-    10 & 0.5 & 14263.97 & 15783.74 \\
-    10 & 0.6 & 14263.97 & 15783.74 \\
-\end{tabular}
-\caption{AIC score as a function of nstart and prob.}
-\label{table1}
-\end{table}
+\subsection*{Model with best AIC score}
+The model with the best AIC score that we've encountered is the following.
 
-Thus the model with the best BIC score is the following.
 \paragraph{Cliques}
-$\set{1,3,10}$, $\set{1,8}$, $\set{1,9}$, $\set{2,7}$, $\set{2,8}$, $\set{2,9}$,
-$\set{2,10}$, $\set{4,6}$, $\set{5,7}$, $\set{5,9}$, $\set{5,10}$, $\set{6,3}$,
-$\set{6,7}$, $\set{6,8}$, $\set{6,9}$
+
+\paragraph{AIC Score} 14263.97
+
+\paragraph{Graph} See Figure~\ref{fig:aic_best}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{aic_best.png}
+    \caption{Independence graph of model with best AIC score.}
+\label{fig:aic_best}
+\end{figure}
+
+\subsection*{Model with best BIC score}
+The model with the best BIC score that we've encountered is the following.
+
+\paragraph{Cliques}
 
 \paragraph{BIC Score} 15783.74
 
-\paragraph{Graph} See Figure~\ref{fig:best}
+\paragraph{Graph} See Figure~\ref{fig:bic_best}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{best.png}
+    \includegraphics[width=0.8\linewidth]{bic_best.png}
     \caption{Independence graph of model with best BIC score.}
-\label{fig:best}
+\label{fig:bic_best}
 \end{figure}
 
 \end{document}

@@ -152,8 +152,8 @@ generate_nstart_prob_plot = function(score, filename)
 
 draw_nstart_prob_plot = function()
 {
-    plot.dat <- read.csv('bic_plot.txt', header=FALSE, col.names=c('nstart', 'prob', 'score'))
-    levelplot(score ~ nstart + prob, data=plot.dat, col.regions=heat.colors)
+    plot.dat <- read.csv('aic_plot.txt', header=FALSE, col.names=c('nstart', 'prob', 'score'))
+    levelplot(score ~ nstart + prob, data=plot.dat, col.regions=topo.colors)
 }
 
 #get_data = function()
