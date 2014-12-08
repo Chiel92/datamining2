@@ -128,6 +128,8 @@ same model from the empty model if the penalty for complexity is low: it will
 be less likely that the algorithm will stop because the model is too complex.
 
 \section*{Question H}
+The algorithm has been executed for several configurations of the parameters \texttt{nstart} and \texttt{prob} with respect to both AIC and BIC.
+The findings have been plotted in level graphs which can be found in in Figure~\ref{fig:aic_plot} and Figure~\ref{fig:bic_plot} respectively.
 
 \begin{figure}[H]
     \centering
@@ -143,8 +145,16 @@ be less likely that the algorithm will stop because the model is too complex.
 \label{fig:bic_plot}
 \end{figure}
 
+To get a reliable idea of the score distribution as function of \texttt{nstart} and \texttt{prob}, one should do muliple runs for each configuration of the parameters.
+However, this takes much computational time and is outside the scope of this assignment.
+
 One can immediately see that the score improves as \texttt{nstart} increases.
-This is very natural, as the result cannot get worse when more restarts are done.
+This is natural, as the result cannot get worse when more restarts are done.
+Moreover, it is clear that the algorithm converges much faster with the AIC score than with the
+BIC score.
+The influence of \texttt{prob} on the score (both AIC and BIC) is less clear.
+One observation that we can make from the graph is that choosing a low value for
+\texttt{prob} doesn't seem to pay off well for the BIC score.
 
 \subsection*{Model with best AIC score}
 The model with the best AIC score that we've encountered is the following.
