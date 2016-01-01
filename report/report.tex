@@ -25,8 +25,10 @@
 
 \section*{Notes}
 \begin{itemize}
+    \item There appeared to be a stupid error in the \texttt{gm.search} function which caused the algorithm to perform a first improvement local search rather than a best improvement local search as was required. I re-evaluated all computations and updated the report correspondingly.
+The answers should be correct now.
+    \item The tool I used to plot the 3d graph in question (h) appeared to be unavailable for some reason, so I redid this question entirely.
     \item The Bron-Kerbosch algorithm has not been taken from the site, but has been implemented manually.
-    \item For all computations we used the same seed, namely 37.
 \end{itemize}
 
 \section*{Question A}
@@ -129,6 +131,7 @@ be less likely that the algorithm will stop because the model is too complex.
 
 \section*{Question H}
 The algorithm has been executed for several configurations of the parameters \texttt{nstart} and \texttt{prob} with respect to both AIC and BIC.
+For each series of restarts the same seed has been used.
 The findings have been plotted in level graphs which can be found in in Figure~\ref{fig:aic_plot} and Figure~\ref{fig:bic_plot} respectively.
 
 \begin{figure}[H]
@@ -159,8 +162,6 @@ One observation that we can make from the graph is that choosing a low value for
 \subsection*{Model with best AIC score}
 The model with the best AIC score that we've encountered is the following.
 
-\paragraph{Cliques}
-
 \paragraph{AIC Score} 14263.97
 
 \paragraph{Graph} See Figure~\ref{fig:aic_best}
@@ -174,8 +175,6 @@ The model with the best AIC score that we've encountered is the following.
 
 \subsection*{Model with best BIC score}
 The model with the best BIC score that we've encountered is the following.
-
-\paragraph{Cliques}
 
 \paragraph{BIC Score} 15783.74
 

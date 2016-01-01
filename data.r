@@ -40,6 +40,6 @@ graph3 <- matrix(c(0, 0, 1, 0, 0, 0, 0, 1, 1, 1,
                    1, 1, 0, 0, 1, 1, 0, 0, 0, 0,
                    1, 1, 1, 0, 1, 0, 0, 0, 0, 0), 10)
 
-library(Rgraphviz)
-library(lattice)
+#library(Rgraphviz)
+#library(lattice)
 emptygraph = matrix(replicate(100, 0), 10, 10)
